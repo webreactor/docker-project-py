@@ -2,7 +2,7 @@ import argparse
 
 
 class cli_controller():
-    parser = argparse.ArgumentParser("docker project management tool 0.0.1")
+    parser = argparse.ArgumentParser("docker-project")
 
     def get_config(self):
 
@@ -21,9 +21,9 @@ class cli_controller():
                             help="Applications sources folder")
 
         self.parser.add_argument("-x", "--extra",
-                            default="apps",
-                            dest="apps",
-                            help="Extra parameters passed to a command")
+                            default="",
+                            dest="extra",
+                            help="Extra parameters to be passed to a command")
         return self.parser.parse_args()
 
 
