@@ -15,6 +15,10 @@ class CliController():
                             default="help",
                             help="command to run")
 
+        arguments_container.add_argument('-h', '--help',
+                            action='store_true',
+                            dest='hi')
+
         arguments_container.add_argument("-f", "--file",
                             default="docker-compose.yml",
                             dest="file",
@@ -35,9 +39,9 @@ class CliController():
         raw = self.define_arguments(arguments_container)
         arguments = {}
         arguments["composer-file"] = utilities.normalize_path(raw["file"], self.pwd)
-        arguments["apps-dir"] = utilities.normalize_path(raw["apps"], self.pwd)
+        arguments["apps-dir"] = utilities.normalize_dir(raw["apps"], os.path.dirname(arguments["composer-file"]))
         arguments["command"] = raw["command"]
-        arguments["extra"] = raw["extra"]
+        arguments["extra"] = raw["extra"] or ''
         return arguments
 
     def handle(self, arguments_container):
@@ -45,7 +49,8 @@ class CliController():
             self.handle_logic(arguments_container)
         except Exception as e:
             print("Error: " + str(e))
-            raise e
+            # raise e
+
 
     def handle_logic(self, arguments_container):
         arguments = self.get_arguments(arguments_container)
@@ -58,36 +63,44 @@ class CliController():
         handler(arguments)
 
 
-    def run_help(self, arguments):
-        pass
-
     def project_command(self, arguments):
-        pass
+        self.app.load_compose_file(arguments['composer-file'])
+        executed = self.app.run_project_command(arguments['command'], arguments['extra'])
+        if not executed:
+            raise Exception("Command " + arguments['command'] + " is not defined.\n" 
+                +"Hint: Create label project."+arguments['command'])
+
+
     def run_status(self, arguments):
         self.app.load_compose_file(arguments['composer-file'])
         print("Compose file: " + arguments['composer-file'])
         print("Apps folder:  " + arguments['apps-dir'])
-        if arguments['extra'] is not None:
-            print("Extra parameters: {$arguments['extra']}")
+        if arguments['extra'] is not '':
+            print("Extra parameters: " + arguments['extra'])
         print("\nRegistered services")
         label_check = re.compile("^project.(.+)$")
-        for service_name in self.app.apps:
-            app_dir = self.app.apps[service_name]
+        for service_name, app_dir in self.app.apps.items():
             print(service_name + ":")
             print("  Application folder: " + app_dir)
             service = self.app.config.get_service(service_name)
-            for key in service['labels']:
-                label = service['labels'][key]
+            for key, label in service['labels'].items():
                 m = label_check.match(key)
                 if m is not None:
                     print("  " + m.group(1) + ": " + label)
             print("")
+
     def run_update(self, arguments):
-        pass
+        self.app.load_compose_file(arguments['composer-file'])
+        self.app.run_update(arguments['extra'])
+
     def run_shell(self, arguments):
+        self.app.load_compose_file(arguments['composer-file'])
+        self.app.run_shell(arguments['command'], arguments['extra'])
+
+
+
+    def run_help(self, arguments):
         pass
-
-
 # Commands:
 #   update - clones or pulls application source
 #   shell - uses extra parameter to run shell command for each app

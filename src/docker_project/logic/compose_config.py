@@ -22,12 +22,14 @@ class Loader():
         return config
 
     def load_yml_file(self, filename):
-        with open(filename, 'r') as stream:
-            return pureyaml.load(stream)
+        try:
+            with open(filename, 'r') as stream:
+                return pureyaml.load(stream)
+        except Exception as e:
+            raise Exception("Failed parse '"+ filename+ "': " + str(e))
 
     def normalize(self, config):
-        for service_name in list(config['services']):
-            service = config['services'][service_name]
+        for service_name, service in config['services'].items():
             if "labels" not in service:
                 service["labels"] = {}
             if "image" not in service:
@@ -45,16 +47,16 @@ class Loader():
         for service_name in list(config['services']):
             service = config['services'][service_name]
             service['_source'] = config['_source']
-            if "extends" in service and file in service['extends']:
+            if "extends" in service and "file" in service['extends']:
                 extends = service['extends']
                 extends_file = utilities.normalize_path(extends['file'], config_path)
                 extends_service_name = extends['service']
-                if os.path.is_file(extends_file):
+                if os.path.isfile(extends_file):
                     extends_data = self.load(extends_file)
-                    if extends_service_name in extention_data['services']:
-                        service_extention = extention_data['services'][extends_service_name]
-                        service_extention['_source'] = extention_data['_source']
-                        config['services'][service_name] = merge_dict_recursive(
+                    if extends_service_name in extends_data['services']:
+                        service_extention = extends_data['services'][extends_service_name]
+                        service_extention['_source'] = extends_data['_source']
+                        config['services'][service_name] = utilities.merge_dict_recursive(
                                 config['services'][service_name],
                                 service_extention)
                 else:
