@@ -1,5 +1,6 @@
 
 import os
+from . import logic
 from .logic import utilities
 import re
 
@@ -7,17 +8,13 @@ class CliController():
 
     def __init__(self, app):
         self.app = app
-        self.config = {}
         self.pwd = os.getcwd()
 
     def define_arguments(self, arguments_container):
         arguments_container.add_argument("command",
                             default="help",
+                            nargs="?",
                             help="command to run")
-
-        arguments_container.add_argument('-h', '--help',
-                            action='store_true',
-                            dest='hi')
 
         arguments_container.add_argument("-f", "--file",
                             default="docker-compose.yml",
@@ -30,7 +27,7 @@ class CliController():
                             help="Applications sources folder")
 
         arguments_container.add_argument("-x", "--extra",
-                            default=None,
+                            default='',
                             dest="extra",
                             help="Extra parameters to be passed to a command")
         return vars(arguments_container.parse_args())
@@ -41,7 +38,7 @@ class CliController():
         arguments["composer-file"] = utilities.normalize_path(raw["file"], self.pwd)
         arguments["apps-dir"] = utilities.normalize_dir(raw["apps"], os.path.dirname(arguments["composer-file"]))
         arguments["command"] = raw["command"]
-        arguments["extra"] = raw["extra"] or ''
+        arguments["extra"] = raw["extra"]
         return arguments
 
     def handle(self, arguments_container):
@@ -51,8 +48,8 @@ class CliController():
             print("Error: " + str(e))
             # raise e
 
-
     def handle_logic(self, arguments_container):
+        self.arguments_container = arguments_container
         arguments = self.get_arguments(arguments_container)
         self.app.init_apps_dir(arguments['apps-dir'])
         command = arguments['command'].lower()
@@ -100,13 +97,26 @@ class CliController():
 
 
     def run_help(self, arguments):
+        print("docker project management tool " + logic.__version__)
+        print('''
+Usage:
+  docker-project <command> <arguments>
+
+Commands:
+  update - clones or pulls application source
+  shell - uses extra parameter to run shell command for each app
+  status - prints current services with repos and their commands
+  help - prints help
+  your_command - defined as label for the service (example: labels: PROJECT_TEST: make test)
+
+Arguments:
+  Full name        | Short | Default          | Note
+-----------------------------------------------------
+  --file             -f      docker-compose.yml Alternative config file
+  --apps             -a      apps               Applications sources folder
+  --extra            -x                         Extra parameters passed to command
+            ''')
         pass
-# Commands:
-#   update - clones or pulls application source
-#   shell - uses extra parameter to run shell command for each app
-#   status - prints current services with repos and their commands
-#   help - prints help
-#   your_command - defined as label for the service (example: labels: PROJECT_TEST: make test)
 
 # Arguments:
 #   Full name        | Short | Default          | Note

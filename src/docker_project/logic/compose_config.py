@@ -23,10 +23,12 @@ class Loader():
 
     def load_yml_file(self, filename):
         try:
+            if not os.path.isfile(filename):
+                raise Exception("file does not exist")
             with open(filename, 'r') as stream:
                 return pureyaml.load(stream)
         except Exception as e:
-            raise Exception("Failed parse '"+ filename+ "': " + str(e))
+            raise Exception("Failed loading '"+ filename+ "': " + str(e))
 
     def normalize(self, config):
         for service_name, service in config['services'].items():
