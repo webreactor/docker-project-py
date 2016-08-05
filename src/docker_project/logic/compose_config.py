@@ -1,6 +1,6 @@
 # import yaml
 import os
-import pureyaml
+import yaml
 from . import utilities
 
 class Loader():
@@ -26,7 +26,7 @@ class Loader():
             if not os.path.isfile(filename):
                 raise Exception("file does not exist")
             with open(filename, 'r') as stream:
-                return pureyaml.load(stream)
+                return yaml.load(stream)
         except Exception as e:
             raise Exception("Failed loading '"+ filename+ "': " + str(e))
 

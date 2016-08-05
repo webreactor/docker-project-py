@@ -1,8 +1,14 @@
 
 import os
-from . import logic
-from .logic import utilities
 import re
+from . import logic
+from .logic import main
+from .logic import utilities
+
+def main():
+    app = logic.main.Application()
+    cli = cli_controller.CliController(app)
+    cli.run()
 
 class CliController():
 
@@ -10,7 +16,8 @@ class CliController():
         self.app = app
         self.pwd = os.getcwd()
 
-    def define_arguments(self, arguments_container):
+    def define_arguments(self):
+        argparse.ArgumentParser("docker-project", add_help = False)
         arguments_container.add_argument("command",
                             default="help",
                             nargs="?",
@@ -41,16 +48,15 @@ class CliController():
         arguments["extra"] = raw["extra"]
         return arguments
 
-    def handle(self, arguments_container):
+    def run(self):
         try:
-            self.handle_logic(arguments_container)
+            self.handle_logic()
         except Exception as e:
             print("Error: " + str(e))
             # raise e
 
-    def handle_logic(self, arguments_container):
-        self.arguments_container = arguments_container
-        arguments = self.get_arguments(arguments_container)
+    def run_logic(self):
+        arguments = self.get_arguments()
         self.app.init_apps_dir(arguments['apps-dir'])
         command = arguments['command'].lower()
         try:
