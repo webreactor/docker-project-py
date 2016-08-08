@@ -1,9 +1,8 @@
-# import yaml
 import os
 import yaml
 from . import utilities
 
-class Loader():
+class ComposerConfig():
     config = {}
 
     def __init__(self, filename = None):

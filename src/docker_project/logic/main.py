@@ -1,7 +1,7 @@
 
 import os
 from . import utilities
-from . import compose_config
+from .compose_config import ComposerConfig
 import re
 
 class Application():
@@ -14,7 +14,7 @@ class Application():
             os.mkdir(apps_dir, 0o766)
 
     def load_compose_file(self, filename):
-        self.config = compose_config.Loader()
+        self.config = ComposerConfig()
         self.config.open(filename)
         self.apps = self.parse_app_dirs(self.config)
 

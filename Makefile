@@ -1,14 +1,10 @@
 
 
-build: src/vendor
+build: venv/
+	venv/bin/pip install -r src/requirements.txt
 
-
-src/vendor:
-	make check-pip
-	pip install -r src/requirements.txt
-
-check-pip:
-	if [ -z "$(shell which pip)" ]; then easy_install pip; fi;
+venv/:
+	virtualenv -p python3 venv
 
 clean:
 	git clean -f -d -x

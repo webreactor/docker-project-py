@@ -1,13 +1,13 @@
 
 import os
 import re
+import argparse
 from . import logic
-from .logic import main
-from .logic import utilities
+from .logic import *
 
 def main():
-    app = logic.main.Application()
-    cli = cli_controller.CliController(app)
+    app = Application()
+    cli = CliController(app)
     cli.run()
 
 class CliController():
@@ -17,7 +17,7 @@ class CliController():
         self.pwd = os.getcwd()
 
     def define_arguments(self):
-        argparse.ArgumentParser("docker-project", add_help = False)
+        arguments_container = argparse.ArgumentParser("docker-project", add_help = False)
         arguments_container.add_argument("command",
                             default="help",
                             nargs="?",
@@ -39,8 +39,8 @@ class CliController():
                             help="Extra parameters to be passed to a command")
         return vars(arguments_container.parse_args())
 
-    def get_arguments(self, arguments_container):
-        raw = self.define_arguments(arguments_container)
+    def get_arguments(self):
+        raw = self.define_arguments()
         arguments = {}
         arguments["composer-file"] = utilities.normalize_path(raw["file"], self.pwd)
         arguments["apps-dir"] = utilities.normalize_dir(raw["apps"], os.path.dirname(arguments["composer-file"]))
@@ -50,7 +50,7 @@ class CliController():
 
     def run(self):
         try:
-            self.handle_logic()
+            self.run_logic()
         except Exception as e:
             print("Error: " + str(e))
             # raise e
