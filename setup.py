@@ -1,9 +1,8 @@
 from setuptools import setup
 from setuptools import find_packages
 
-
 setup(
-    name="docker-project",
+    name="docker_project",
     version="0.0.1",
     install_requires=[
         'PyYAML >= 3.10, < 4'

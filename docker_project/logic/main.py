@@ -1,8 +1,8 @@
-
 import os
+import re
+
 from . import utilities
 from .compose_config import ComposerConfig
-import re
 
 class Application():
 

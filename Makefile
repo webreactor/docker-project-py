@@ -14,6 +14,7 @@ build-all: clean venv/
 	venv/bin/pip install -r requirements.txt
 	venv/bin/python setup.py install
 	venv/bin/pyinstaller docker-project.spec
+	git clean -f -d -x -e dist
 	chmod a+w dist -R
 	@echo "binary is here:"
 	@echo "dist/docker-project"
